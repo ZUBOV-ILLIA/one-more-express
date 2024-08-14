@@ -14,7 +14,11 @@ app.use(cors());
 // });
 
 app.get('/123', (req, res) => {
-  res.end('bla bla bla bla bla')
+  res.json({
+    a: 1,
+    b: 2,
+    c: 3
+  })
 });
 
 app.listen(port, () => {
