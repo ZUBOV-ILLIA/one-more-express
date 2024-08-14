@@ -1,17 +1,20 @@
 const express = require('express');
 const path = require('path');
+const cors = require('cors')
 const app = express();
 const port = 3000;
 
-app.use('/', (req, res, next) => {
-  console.log(path.join(__dirname, 'index.html'));
+app.use(cors());
 
-  res.write(`<h1>${path.join(__dirname, 'index.html')}</h1>`)
-  next();
-});
+// app.use('/', (req, res, next) => {
+//   console.log(path.join(__dirname, 'index.html'));
+
+//   res.write(`<h1>${path.join(__dirname, 'index.html')}</h1>`)
+//   next();
+// });
 
 app.get('/123', (req, res) => {
-  res.end('123')
+  res.end('bla bla bla bla bla')
 });
 
 app.listen(port, () => {
