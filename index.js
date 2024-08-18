@@ -60,7 +60,7 @@ app.post('/todo', (req, res, ) => {
   }
 
   const newTodo = { userId, id, title: title.trim(), completed };
-  todos.push(newTodo);
+  todos.unshift(newTodo);
 
   res.json(newTodo);
 });
