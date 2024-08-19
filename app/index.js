@@ -1,0 +1,82 @@
+const express = require('express');
+const path = require('path');
+const cors = require('cors');
+const { error } = require('console');
+const app = express();
+const port = 3000;
+
+const db = {
+  users: [
+    { id: 1, username: 'Frodo Begins', role: 'hobbit', skill: 'blue sword' },
+    { id: 2, username: 'Samwise Gamgee', role: 'hobbit', skill: 'friendship' },
+    { id: 3, username: 'Gendalf', role: 'wizard', skill: 'magic' },
+    { id: 4, username: 'Legolas', role: 'elf', skill: 'archery' },
+    { id: 5, username: 'Aragorn', role: 'human', skill: 'sword' }, 
+  ]
+}
+
+const todos = [
+  { userId: 1, id: 'fbbb8a42-df38-4ee4-afa6-1b62718693ff', title: 'Learn HTML', completed: false },
+  { userId: 1, id: 'fbbb8a42-df38-43e4-afa6-1b62718693ff', title: 'Learn CSS', completed: false },
+  { userId: 1, id: 'fbb18a42-df38-43e4-afa6-1b62718693ff', title: 'Learn JS', completed: true },
+  { userId: 2, id: 'fb3b8a42-df38-43e4-afa6-1b62718693ff', title: 'Learn React', completed: false },
+  { userId: 2, id: 'fb4b8a42-df38-43e4-afa6-1b62718693ff', title: 'Learn Redux', completed: false },
+  { userId: 3, id: 'fb5b8a42-df38-43e4-afa6-1b62718693ff', title: 'Learn Node.js', completed: false },
+  { userId: 4, id: 'fbeb8a42-df38-43e4-afa6-1b62718693ff', title: 'Learn Express', completed: false },
+  { userId: 5, id: 'fbab8a42-df38-43e4-afa6-1b62718693ff', title: 'Learn MongoDB', completed: false },
+  { userId: 5, id: 'fbzb8a42-df38-43e4-afa6-1b62718693ff', title: 'Learn SQL', completed: false },
+  { userId: 5, id: 'fbgg8a42-df38-43e4-afa6-1b62718693ff', title: 'Learn Python', completed: false },
+];
+
+app.use(cors());
+app.use(express.json());
+
+// app.use('/', (req, res, next) => {
+//   console.log(path.join(__dirname, 'index.html'));
+
+//   res.write(`<h1>${path.join(__dirname, 'index.html')}</h1>`)
+//   next();
+// });
+
+app.post('/todo', (req, res, ) => {
+  const { userId, id, title, completed } = req.body;
+
+  // Check if all required fields are present
+  if (!userId || !id || !title || completed === undefined) {
+    res.status(400).json({ error: 'All fields are required!' });
+    return;
+  }
+
+  // Check if title is not an empty string
+  if (typeof title !== 'string' || title.trim() === '') {
+    res.status(400).json({ error: 'Title cannot be empty!' });
+    return;
+  }
+
+  // Check if completed is a boolean
+  if (typeof completed !== 'boolean') {
+    res.status(400).json({ error: 'Completed must be a boolean!' });
+    return;
+  }
+
+  const newTodo = { userId, id, title: title.trim(), completed };
+  todos.unshift(newTodo);
+
+  res.json(newTodo);
+});
+
+app.get('/todos', (req, res) => {
+  res.json(todos);
+});
+
+app.get('/123', (req, res) => {
+  const userId = req.query.userId;
+  const neededUser = db.users.find(user => user.id == userId);
+
+  res.json(neededUser || { error: 'User not exists!' });
+});
+
+app.listen(port, () => {
+  console.clear();
+  console.log(`http://localhost:${port}`)
+});
