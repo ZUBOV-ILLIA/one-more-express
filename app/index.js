@@ -1,7 +1,6 @@
 const express = require('express');
-const path = require('path');
 const cors = require('cors');
-const { error } = require('console');
+// const path = require('path');
 const app = express();
 const port = 3001;
 
@@ -38,6 +37,14 @@ app.use(express.json());
 //   next();
 // });
 
+app.get("/", (req, res) => {
+  res.send("<h1>Express on Vercel</h1>")
+});
+
+app.get('/todos', (req, res) => {
+  res.json(todos);
+});
+
 app.post('/todo', (req, res, ) => {
   const { userId, id, title, completed } = req.body;
 
@@ -63,17 +70,6 @@ app.post('/todo', (req, res, ) => {
   todos.unshift(newTodo);
 
   res.json(newTodo);
-});
-
-app.get('/todos', (req, res) => {
-  res.json(todos);
-});
-
-app.get('/123', (req, res) => {
-  const userId = req.query.userId;
-  const neededUser = db.users.find(user => user.id == userId);
-
-  res.json(neededUser || { error: 'User not exists!' });
 });
 
 app.listen(port, () => {
