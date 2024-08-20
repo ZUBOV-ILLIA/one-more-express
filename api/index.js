@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const cors = require('cors');
 // const path = require('path');
 const app = express();
@@ -30,12 +30,6 @@ const todos = [
 app.use(cors());
 app.use(express.json());
 
-// app.use('/', (req, res, next) => {
-//   console.log(path.join(__dirname, 'index.html'));
-
-//   res.write(`<h1>${path.join(__dirname, 'index.html')}</h1>`)
-//   next();
-// });
 
 app.get("/", (req, res) => {
   res.send("<h1>Express on Vercel</h1>")
@@ -73,8 +67,9 @@ app.post('/todo', (req, res, ) => {
 });
 
 app.listen(port, () => {
-  console.clear();
-  console.log(`http://localhost:${port}`)
+  // console.clear();
+  console.log(`http://localhost:${port}}`)
 });
+
 
 module.exports = app;
