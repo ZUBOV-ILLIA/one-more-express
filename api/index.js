@@ -4,7 +4,7 @@ const cors = require('cors');
 const app = express();
 const port = 3001;
 
-const db = {
+let db = {
   users: [
     { id: 1, username: 'Frodo Begins', role: 'hobbit', skill: 'blue sword' },
     { id: 2, username: 'Samwise Gamgee', role: 'hobbit', skill: 'friendship' },
@@ -14,7 +14,7 @@ const db = {
   ]
 }
 
-const todos = [
+let todos = [
   { userId: 1, id: 'fbbb8a42-df38-4ee4-afa6-1b62718693ff', title: 'Learn HTML', completed: false },
   { userId: 1, id: 'fbbb8a42-df38-43e4-afa6-1b62718693ff', title: 'Learn CSS', completed: false },
   { userId: 1, id: 'fbb18a42-df38-43e4-afa6-1b62718693ff', title: 'Learn JS', completed: true },
@@ -64,6 +64,38 @@ app.post('/todo', (req, res, ) => {
   todos.unshift(newTodo);
 
   res.json(newTodo);
+});
+
+app.patch('/todos/:id', (req, res) => {
+  const { id } = req.params;
+  const { completed } = req.body;
+
+  // Check if completed is a boolean
+  if (typeof completed !== 'boolean') {
+    res.status(400).json({ error: 'Completed must be a boolean!' });
+
+    return;
+  }
+
+  let todo = false;
+
+  todos = todos.map((item) => {
+    if (item.id === id) {
+      todo = { ...item, completed };
+
+      return todo;
+    }
+
+    return item;
+  });
+
+  if (!todo) {
+    res.status(404).json({ error: 'Todo not found!' });
+
+    return;
+  }
+
+  res.sendStatus(200);
 });
 
 app.listen(port, () => {
