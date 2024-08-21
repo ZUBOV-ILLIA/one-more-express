@@ -66,41 +66,30 @@ app.post('/todo', (req, res, ) => {
   res.json(newTodo);
 });
 
-app.patch('/todos/:id', (req, res) => {
+app.post('/todos/:id', (req, res) => {
   const { id } = req.params;
-  const { completed } = req.body;
+  const { todo } = req.body;
 
-  // Check if completed is a boolean
-  if (typeof completed !== 'boolean') {
-    res.status(400).json({ error: 'Completed must be a boolean!' });
+  if (!todo) {
+    res.status(400).json({ error: 'Todo is required!' });
 
     return;
   }
 
-  let todo = false;
-
   todos = todos.map((item) => {
     if (item.id === id) {
-      todo = { ...item, completed };
-
       return todo;
     }
 
     return item;
   });
 
-  if (!todo) {
-    res.status(404).json({ error: 'Todo not found!' });
-
-    return;
-  }
-
   res.sendStatus(200);
 });
 
 app.listen(port, () => {
   // console.clear();
-  console.log(`http://localhost:${port}}`)
+  console.log(`http://localhost:${port}`)
 });
 
 
