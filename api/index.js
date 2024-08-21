@@ -87,6 +87,14 @@ app.post('/todos/:id', (req, res) => {
   res.sendStatus(200);
 });
 
+app.delete('/todos/:id', (req, res) => {
+  const { id } = req.params;
+
+  todos = todos.filter((item) => item.id !== id);
+
+  res.sendStatus(200);
+});
+
 app.listen(port, () => {
   // console.clear();
   console.log(`http://localhost:${port}`)
