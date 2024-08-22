@@ -1,10 +1,19 @@
 const express = require("express");
 const app = express();
 const cors = require('cors');
-const path = require('path');
+
+// const path = require('path');
+
+const todoService = require('./services/todo.service');
 
 const port = 3001;
 let { todos, db } = require('./DB');
+
+// put - update all exept id
+// patch - update some key
+
+
+// mvc - model view controller
 
 app.use(cors());
 app.use(express.json());
@@ -14,53 +23,59 @@ app.get("/", (req, res) => {
 });
 
 app.get('/todos', (req, res) => {
-  res.json(todos);
+  res.json(todoService.getAll());
 });
 
-app.post('/todo', (req, res, ) => {
-  const { userId, id, title, completed } = req.body;
+app.get('/todos/:id', (req, res) => {
+  const { id } = req.params;
+  const todo = todoService.getById(id);
 
-  // Check if all required fields are present
-  if (!userId || !id || !title || completed === undefined) {
-    res.status(400).json({ error: 'All fields are required!' });
+  if (!todo) {
+    res.sendStatus(404);
+    
     return;
   }
 
-  // Check if title is not an empty string
-  if (typeof title !== 'string' || title.trim() === '') {
-    res.status(400).json({ error: 'Title cannot be empty!' });
+  res.json(todo);
+});
+
+app.post('/todos', (req, res, ) => {
+  const { title } = req.body;
+
+  if (typeof title !== 'string') {
+    res.status(400).json({ error: 'Title must be a string!' });
     return;
   }
 
-  // Check if completed is a boolean
+  if (!title.trim()) {
+    res.status(400).json({ error: 'Title is required!' });
+    return;
+  }
+
+  const todo = todoService.create(title);
+
+  res.json(todo);
+});
+
+app.patch('/todos/:id', (req, res) => {
+  const { id } = req.params;
+  const { title, completed } = req.body;
+
+  if (title === undefined || completed === undefined) {
+    res.status(400).json({ error: 'Title and Completed is required!' });
+  }
+
+  if (title && typeof title !== 'string') {
+    res.status(400).json({ error: 'Title must be a string!' });
+    return;
+  }
+
   if (typeof completed !== 'boolean') {
     res.status(400).json({ error: 'Completed must be a boolean!' });
     return;
   }
-
-  const newTodo = { userId, id, title: title.trim(), completed };
-  todos.unshift(newTodo);
-
-  res.json(newTodo);
-});
-
-app.post('/todos/:id', (req, res) => {
-  const { id } = req.params;
-  const { todo } = req.body;
-
-  if (!todo) {
-    res.status(400).json({ error: 'Todo is required!' });
-
-    return;
-  }
-
-  todos = todos.map((item) => {
-    if (item.id === id) {
-      return todo;
-    }
-
-    return item;
-  });
+  
+  todos = todoService.update({ id, title, completed });
 
   res.sendStatus(200);
 });
@@ -68,7 +83,13 @@ app.post('/todos/:id', (req, res) => {
 app.delete('/todos/:id', (req, res) => {
   const { id } = req.params;
 
-  todos = todos.filter((item) => item.id !== id);
+  if (!todoService.getById(id)) {
+    res.sendStatus(404);
+
+    return;
+  }
+
+  todoService.remove(id);
 
   res.sendStatus(200);
 });
