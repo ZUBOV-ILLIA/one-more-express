@@ -78,9 +78,9 @@ app.post('/todos/:id', (req, res) => {
     return item;
   });
 
-  fs.writeFileSync(path.join(__dirname, 'DB.json'), JSON.stringify(todos));
-
   res.sendStatus(200);
+  
+  fs.writeFileSync(path.join(__dirname, 'DB.json'), JSON.stringify(todos));
 });
 
 app.delete('/todos/:id', (req, res) => {
