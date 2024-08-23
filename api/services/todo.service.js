@@ -59,6 +59,19 @@ const update = ({ id, title, completed }) => {
   });
 }
 
+const updateMany = (ids, completed) => {
+  todos = todos.map((item) => {
+    if (ids.includes(item.id)) {
+      return {
+        ...item,
+        completed,
+      };
+    }
+
+    return item;
+  });
+}
+
 const remove = (id) => {
   todos = todos.filter((item) => item.id !== id);
 }
@@ -68,5 +81,6 @@ module.exports = {
   getById,
   create,
   update,
+  updateMany,
   remove
 }

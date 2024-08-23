@@ -1,9 +1,6 @@
 const express = require("express");
 const app = express();
 const cors = require('cors');
-
-// const path = require('path');
-
 const todoService = require('./services/todo.service');
 
 const port = 3001;
@@ -76,6 +73,36 @@ app.patch('/todos/:id', (req, res) => {
   }
   
   todos = todoService.update({ id, title, completed });
+
+  res.sendStatus(200);
+});
+
+app.patch('/todos', (req, res) => {
+  const { ids, completed } = req.body;
+
+  console.log(ids);
+
+  if (!ids) {
+    res.status(400).json({ error: 'Ids is required!' });
+    return;
+  }
+
+  if (!Array.isArray(ids)) {
+    res.status(400).json({ error: 'Ids must be an array!' });
+    return;
+  }
+
+  if (completed === undefined) {
+    res.status(400).json({ error: 'Completed is required!' });
+    return;
+  }
+
+  if (typeof completed !== 'boolean') {
+    res.status(400).json({ error: 'Completed must be a boolean!' });
+    return;
+  }
+
+  todoService.updateMany(ids, completed);
 
   res.sendStatus(200);
 });
