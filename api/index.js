@@ -15,6 +15,12 @@ let { todos, db } = require('./DB');
 app.use(cors());
 app.use(express.json());
 
+// app.use((req, res, next) => {
+//   setTimeout(() => {
+//     next();
+//   }, 3000);
+// });
+
 app.get("/", (req, res) => {
   res.send("<h1>Express on Vercel</h1>")
 });
@@ -78,9 +84,7 @@ app.patch('/todos/:id', (req, res) => {
 });
 
 app.patch('/todos', (req, res) => {
-  const { ids, completed } = req.body;
-
-  console.log(ids);
+  const { ids, action, completed } = req.body;
 
   if (!ids) {
     res.status(400).json({ error: 'Ids is required!' });
@@ -92,18 +96,29 @@ app.patch('/todos', (req, res) => {
     return;
   }
 
-  if (completed === undefined) {
-    res.status(400).json({ error: 'Completed is required!' });
+  if (action === undefined) {
+    res.status(400).json({ error: 'Action is required!' });
     return;
   }
 
-  if (typeof completed !== 'boolean') {
-    res.status(400).json({ error: 'Completed must be a boolean!' });
-    return;
+  if (action === 'delete') {
+    todoService.removeMany(ids);
   }
 
-  todoService.updateMany(ids, completed);
+  if (action === 'toggle') {
+    if (completed === undefined) {
+      res.status(400).json({ error: 'Completed is required!' });
+      return;
+    }
+  
+    if (typeof completed !== 'boolean') {
+      res.status(400).json({ error: 'Completed must be a boolean!' });
+      return;
+    }
 
+    todoService.updateMany(ids, completed);
+  }
+  
   res.sendStatus(200);
 });
 
@@ -117,6 +132,24 @@ app.delete('/todos/:id', (req, res) => {
   }
 
   todoService.remove(id);
+
+  res.sendStatus(200);
+});
+
+app.delete('/todos', (req, res) => {
+  const { ids } = req.body;
+
+  if (!ids) {
+    res.status(400).json({ error: 'Ids is required!' });
+    return;
+  }
+
+  if (!Array.isArray(ids)) {
+    res.status(400).json({ error: 'Ids must be an array!' });
+    return;
+  }
+
+  todoService.removeMany(ids);
 
   res.sendStatus(200);
 });

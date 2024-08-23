@@ -76,11 +76,16 @@ const remove = (id) => {
   todos = todos.filter((item) => item.id !== id);
 }
 
+const removeMany = (ids) => {
+  todos = todos.filter((item) => !ids.includes(item.id));
+}
+
 module.exports = {
   getAll,
   getById,
   create,
   update,
   updateMany,
-  remove
+  remove,
+  removeMany
 }
