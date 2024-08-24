@@ -12,7 +12,11 @@ router.patch('/:id', todoController.update);
 
 router.delete('/:id', todoController.remove);
 
-const isAction = action => {
+router.patch('/', isAction('delete'), todoController.removeMany);
+
+router.patch('/', isAction('toggle'), todoController.updateMany);
+
+function isAction(action) {
   // middleware
   return (req, res, next) => {
     if (req.body.action === action) {
@@ -22,10 +26,6 @@ const isAction = action => {
       next('route'); // go to next route (middleware, updateMany)
     }
   };
-};
-
-router.patch('/', isAction('delete'), todoController.removeMany);
-
-router.patch('/', isAction('toggle'), todoController.updateMany);
+}
 
 module.exports = router;
