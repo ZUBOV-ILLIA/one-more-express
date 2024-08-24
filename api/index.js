@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 const app = express();
 const cors = require('cors');
 
@@ -10,20 +10,14 @@ let { todos, db } = require('./DB');
 // put - update all exept id
 // patch - update some key
 
-
 // mvc - model view controller
 
 app.use(cors());
-// app.use();
 
 app.use('/todos', express.json(), todoRouter);
 
-
-
-
 app.listen(port, () => {
-  console.log(`http://localhost:${port}`)
+  console.log(`http://localhost:${port}`);
 });
-
 
 module.exports = app;

@@ -2,7 +2,7 @@ const todoService = require('../services/todo.service');
 
 const get = (req, res) => {
   res.json(todoService.getAll());
-}
+};
 
 const getOne = (req, res) => {
   const { id } = req.params;
@@ -10,12 +10,12 @@ const getOne = (req, res) => {
 
   if (!todo) {
     res.sendStatus(404);
-    
+
     return;
   }
 
   res.json(todo);
-}
+};
 
 const create = (req, res) => {
   const { title } = req.body;
@@ -33,7 +33,7 @@ const create = (req, res) => {
   const todo = todoService.create(title);
 
   res.json(todo);
-}
+};
 
 const update = (req, res) => {
   const { id } = req.params;
@@ -52,11 +52,11 @@ const update = (req, res) => {
     res.status(400).json({ error: 'Completed must be a boolean!' });
     return;
   }
-  
+
   todos = todoService.update({ id, title, completed });
 
   res.sendStatus(200);
-}
+};
 
 const updateMany = (req, res) => {
   const { ids, action, completed } = req.body;
@@ -75,7 +75,7 @@ const updateMany = (req, res) => {
     res.status(400).json({ error: 'Action is required!' });
     return;
   }
-  
+
   if (completed === undefined) {
     res.status(400).json({ error: 'Completed is required!' });
     return;
@@ -89,7 +89,7 @@ const updateMany = (req, res) => {
   todoService.updateMany(ids, completed);
 
   res.sendStatus(200);
-}
+};
 
 const remove = (req, res) => {
   const { id } = req.params;
@@ -103,7 +103,7 @@ const remove = (req, res) => {
   todoService.remove(id);
 
   res.sendStatus(200);
-}
+};
 
 const removeMany = (req, res) => {
   const { ids, action } = req.body;
@@ -126,7 +126,7 @@ const removeMany = (req, res) => {
   todoService.removeMany(ids);
 
   res.sendStatus(200);
-}
+};
 
 module.exports = {
   get,
@@ -135,5 +135,5 @@ module.exports = {
   update,
   updateMany,
   remove,
-  removeMany
-}
+  removeMany,
+};
