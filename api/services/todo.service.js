@@ -72,61 +72,111 @@ let todos = [
 ];
 
 const { v4: uuidv4 } = require('uuid');
+const { sql } = require('@vercel/postgres');
+const dotenv = require('dotenv').config();
 
-const getAll = () => {
-  return todos;
+// const pg = require('pg');
+// const { Client } = pg;
+
+// const client = new Client({
+//   user: 'postgres',
+//   password: '11111111',
+//   host: 'localhost',
+//   port: 5432,
+//   database: 'one-more-express-postgres',
+// });
+
+// async function connectDB() {
+//   try {
+//     await client.connect();
+//     console.log('Connected to the database');
+//   } catch (err) {
+//     console.error('Error connecting to the database', err);
+//   }
+// }
+// connectDB();
+
+// async function result(params) {
+//   const res = await client.query('SELECT * FROM todos');
+//   console.log(res.rows);
+// }
+// result();
+
+async function createTable() {
+  try {
+    const result =
+      // await sql`CREATE TABLE todos ( id text, userId integer, title text, completed boolean);`;
+      // await sql`INSERT INTO todos (id, userId, title, completed) VALUES ('fbbb8a42-df38-43e4-afa6-1b62718693ff', 1, 'Learn CSS', false);`;
+
+      await sql`SELECT * FROM todos;`;
+
+    // return response.status(200).json({ result });
+  } catch (error) {
+    console.error('Error creating table:', error);
+  }
+}
+// createTable();
+
+const getAll = async () => {
+  const todos = await sql.query(`SELECT * FROM todos;`);
+
+  return todos.rows;
 };
 
-const getById = id => {
-  return todos.find(todo => todo.id === id) || null;
+const getById = async id => {
+  const todo = await sql.query(
+    `
+      SELECT * FROM todos
+      WHERE id = '${id}';
+    `,
+  );
+
+  return todo.rows[0] || null;
 };
 
-const create = title => {
-  const todo = {
-    userId: 1,
-    id: uuidv4(),
-    title: title.trim(),
-    completed: false,
-  };
+const create = async title => {
+  const id = uuidv4();
 
-  todos.unshift(todo);
+  await sql.query(
+    `
+    INSERT INTO todos (id, userId, title, completed)
+    VALUES ('${id}', 1, '${title.trim()}', false);
+  `,
+  );
+
+  const todo = await getById(id);
 
   return todo;
 };
 
-const update = ({ id, title, completed }) => {
-  todos = todos.map(item => {
-    if (item.id === id) {
-      return {
-        ...item,
-        title,
-        completed,
-      };
-    }
-
-    return item;
-  });
+const update = async ({ id, title, completed }) => {
+  await sql.query(
+    `
+      UPDATE todos
+      SET title = '${title.trim()}', completed = ${completed}
+      WHERE id = '${id}';
+    `,
+  );
 };
 
-const updateMany = (ids, completed) => {
-  todos = todos.map(item => {
-    if (ids.includes(item.id)) {
-      return {
-        ...item,
-        completed,
-      };
-    }
-
-    return item;
-  });
+const updateMany = async (ids, completed) => {
+  await sql.query(
+    `
+      UPDATE todos
+      SET completed = ${completed}
+      WHERE id IN (${ids.map(id => `'${id}'`).join(',')});
+    `,
+  );
 };
 
-const remove = id => {
-  todos = todos.filter(item => item.id !== id);
+const remove = async id => {
+  await sql.query(`DELETE FROM todos WHERE id = '${id}';`);
 };
 
-const removeMany = ids => {
-  todos = todos.filter(item => !ids.includes(item.id));
+const removeMany = async ids => {
+  await sql.query(
+    `DELETE FROM todos WHERE id IN (${ids.map(id => `'${id}'`).join(', ')});`,
+  );
 };
 
 module.exports = {

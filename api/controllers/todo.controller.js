@@ -1,12 +1,14 @@
 const todoService = require('../services/todo.service');
 
-const get = (req, res) => {
-  res.json(todoService.getAll());
+const get = async (req, res) => {
+  const todos = await todoService.getAll();
+
+  res.json(todos);
 };
 
-const getOne = (req, res) => {
+const getOne = async (req, res) => {
   const { id } = req.params;
-  const todo = todoService.getById(id);
+  const todo = await todoService.getById(id);
 
   if (!todo) {
     res.sendStatus(404);
@@ -17,7 +19,7 @@ const getOne = (req, res) => {
   res.json(todo);
 };
 
-const create = (req, res) => {
+const create = async (req, res) => {
   const { title } = req.body;
 
   if (typeof title !== 'string') {
@@ -30,12 +32,12 @@ const create = (req, res) => {
     return;
   }
 
-  const todo = todoService.create(title);
+  const todo = await todoService.create(title);
 
   res.json(todo);
 };
 
-const update = (req, res) => {
+const update = async (req, res) => {
   const { id } = req.params;
   const { title, completed } = req.body;
 
@@ -53,12 +55,12 @@ const update = (req, res) => {
     return;
   }
 
-  todos = todoService.update({ id, title, completed });
+  await todoService.update({ id, title, completed });
 
   res.sendStatus(200);
 };
 
-const updateMany = (req, res) => {
+const updateMany = async (req, res) => {
   const { ids, action, completed } = req.body;
 
   if (!ids) {
@@ -86,12 +88,12 @@ const updateMany = (req, res) => {
     return;
   }
 
-  todoService.updateMany(ids, completed);
+  await todoService.updateMany(ids, completed);
 
   res.sendStatus(200);
 };
 
-const remove = (req, res) => {
+const remove = async (req, res) => {
   const { id } = req.params;
 
   if (!todoService.getById(id)) {
@@ -100,12 +102,12 @@ const remove = (req, res) => {
     return;
   }
 
-  todoService.remove(id);
+  await todoService.remove(id);
 
   res.sendStatus(200);
 };
 
-const removeMany = (req, res) => {
+const removeMany = async (req, res) => {
   const { ids, action } = req.body;
 
   if (!ids) {
@@ -123,7 +125,7 @@ const removeMany = (req, res) => {
     return;
   }
 
-  todoService.removeMany(ids);
+  await todoService.removeMany(ids);
 
   res.sendStatus(200);
 };
