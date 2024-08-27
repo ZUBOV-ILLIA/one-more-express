@@ -54,8 +54,9 @@ const getById = async id => {
   const todo = await DB.query(
     `
       SELECT * FROM todos
-      WHERE id = '${id}';
+      WHERE id = $1;
     `,
+    [id],
   );
 
   return todo.rows[0] || null;
@@ -67,8 +68,9 @@ const create = async title => {
   await DB.query(
     `
     INSERT INTO todos (id, userId, title, completed)
-    VALUES ('${id}', 1, '${title.trim()}', false);
+    VALUES ($1, 1, $2, false);
   `,
+    [id, title.trim()],
   );
 
   const todo = await getById(id);
@@ -80,9 +82,10 @@ const update = async ({ id, title, completed }) => {
   await DB.query(
     `
       UPDATE todos
-      SET title = '${title.trim()}', completed = ${completed}
-      WHERE id = '${id}';
+      SET title = $2, completed = $3
+      WHERE id = $1;
     `,
+    [id, title.trim(), completed],
   );
 };
 
@@ -90,14 +93,19 @@ const updateMany = async (ids, completed) => {
   await DB.query(
     `
       UPDATE todos
-      SET completed = ${completed}
+      SET completed = $1
       WHERE id IN (${ids.map(id => `'${id}'`).join(',')});
     `,
+    [completed],
   );
 };
 
 const remove = async id => {
-  await DB.query(`DELETE FROM todos WHERE id = '${id}';`);
+  await DB.query(
+    `DELETE FROM todos WHERE id = $1;
+    `,
+    [id],
+  );
 };
 
 const removeMany = async ids => {
