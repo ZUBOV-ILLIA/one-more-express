@@ -4,17 +4,6 @@ const pg = require('pg');
 const { Client } = pg;
 const dotenv = require('dotenv').config();
 
-// choosing ENVIRONMENT ===================
-const useLocalClient = process.env.NODE_ENV === 'loc';
-// const queryDatabase = async query => {
-//   if (useLocalClient) {
-//     return client.query(query);
-//   } else {
-//     return DB.query(query);
-//   }
-// };
-// choosing ENVIRONMENT ===================
-
 const client = new Client({
   user: dotenv.parsed.USER,
   password: dotenv.parsed.PASSWORD,
@@ -25,6 +14,7 @@ const client = new Client({
 
 let DB;
 
+// local DB or vercel DB
 if (process.env.NODE_ENV === 'loc') {
   DB = client;
 
@@ -41,6 +31,18 @@ async function connectDB() {
     console.error('Error connecting to the database', err);
   }
 }
+
+async function createTableTodos() {
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS todos (
+      id TEXT,
+      userId INTEGER,
+      title TEXT,
+      completed BOOLEAN
+    );
+  `);
+}
+createTableTodos();
 
 const getAll = async () => {
   const todos = await DB.query(`SELECT * FROM todos;`);
