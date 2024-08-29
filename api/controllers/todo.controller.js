@@ -1,9 +1,14 @@
 const todoService = require('../services/todo.service');
 
 const get = async (req, res) => {
-  const todos = await todoService.getAll();
+  try {
+    const todos = await todoService.getAll();
 
-  res.json(todos);
+    res.json(todos);
+  } catch (error) {
+    console.log('============== error ==============');
+    res.sendStatus(500);
+  }
 };
 
 const getOne = async (req, res) => {

@@ -1,57 +1,14 @@
 const { v4: uuidv4 } = require('uuid');
-const { sql } = require('@vercel/postgres');
-const pg = require('pg');
-const { Client } = pg;
-const dotenv = require('dotenv').config();
-
-const client = new Client({
-  user: dotenv.parsed.USER,
-  password: dotenv.parsed.PASSWORD,
-  host: dotenv.parsed.HOST,
-  port: dotenv.parsed.PORT,
-  database: dotenv.parsed.DATABASE,
-});
-
-let DB;
-
-// local DB or vercel DB
-if (process.env.NODE_ENV === 'loc') {
-  DB = client;
-
-  connectDB();
-} else {
-  DB = sql;
-}
-
-async function connectDB() {
-  try {
-    await client.connect();
-    console.log('Connected to the database');
-  } catch (err) {
-    console.error('Error connecting to the database', err);
-  }
-}
-
-async function createTableTodos() {
-  await client.query(`
-    CREATE TABLE IF NOT EXISTS todos (
-      id TEXT,
-      userId INTEGER,
-      title TEXT,
-      completed BOOLEAN
-    );
-  `);
-}
-createTableTodos();
+const db = require('../utils/db');
 
 const getAll = async () => {
-  const todos = await DB.query(`SELECT * FROM todos;`);
+  const todos = await db.query(`SELECT * FROM todos;`);
 
   return todos.rows;
 };
 
 const getById = async id => {
-  const todo = await DB.query(
+  const todo = await db.query(
     `
       SELECT * FROM todos
       WHERE id = $1;
@@ -65,7 +22,7 @@ const getById = async id => {
 const create = async title => {
   const id = uuidv4();
 
-  await DB.query(
+  await db.query(
     `
     INSERT INTO todos (id, userId, title, completed)
     VALUES ($1, 1, $2, false);
@@ -79,7 +36,7 @@ const create = async title => {
 };
 
 const update = async ({ id, title, completed }) => {
-  await DB.query(
+  await db.query(
     `
       UPDATE todos
       SET title = $2, completed = $3
@@ -90,7 +47,7 @@ const update = async ({ id, title, completed }) => {
 };
 
 const updateMany = async (ids, completed) => {
-  await DB.query(
+  await db.query(
     `
       UPDATE todos
       SET completed = $1
@@ -101,7 +58,7 @@ const updateMany = async (ids, completed) => {
 };
 
 const remove = async id => {
-  await DB.query(
+  await db.query(
     `
       DELETE FROM todos WHERE id = $1;
     `,
@@ -114,11 +71,12 @@ const removeMany = async ids => {
     throw new Error('Invalid ID format');
   }
 
-  await DB.query(
+  await db.query(
     `
       DELETE FROM todos
-      WHERE id IN (${ids.map(id => `'${id}'`).join(', ')});
+      WHERE id = ANY($1);
     `,
+    [ids],
   );
 };
 
@@ -137,4 +95,5 @@ module.exports = {
   updateMany,
   remove,
   removeMany,
+  db,
 };
