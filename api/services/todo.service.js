@@ -1,34 +1,52 @@
 const { v4: uuidv4 } = require('uuid');
 const db = require('../utils/db');
+const { DataTypes } = require('sequelize');
+
+const Todo = db.define(
+  'Todo',
+  {
+    id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+    },
+    userid: {
+      type: DataTypes.NUMBER,
+      allowNull: false,
+    },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    completed: {
+      type: DataTypes.BOOLEAN,
+    },
+  },
+  {
+    tableName: 'todos',
+    createdAt: false,
+    updatedAt: false,
+  },
+);
 
 const getAll = async () => {
-  const todos = await db.query(`SELECT * FROM todos;`);
+  const todos = await Todo.findAll();
 
-  return todos.rows;
+  return todos;
 };
 
 const getById = async id => {
-  const todo = await db.query(
-    `
-      SELECT * FROM todos
-      WHERE id = $1;
-    `,
-    [id],
-  );
+  const todo = await Todo.findByPk(id);
 
-  return todo.rows[0] || null;
+  return todo || null;
 };
 
 const create = async title => {
   const id = uuidv4();
 
-  await db.query(
-    `
-    INSERT INTO todos (id, userId, title, completed)
-    VALUES ($1, 1, $2, false);
-  `,
-    [id, title.trim()],
-  );
+  console.log(id);
+
+  await Todo.create({ id, userid: 1, title: title.trim(), completed: false });
 
   const todo = await getById(id);
 
@@ -36,34 +54,15 @@ const create = async title => {
 };
 
 const update = async ({ id, title, completed }) => {
-  await db.query(
-    `
-      UPDATE todos
-      SET title = $2, completed = $3
-      WHERE id = $1;
-    `,
-    [id, title.trim(), completed],
-  );
+  await Todo.update({ title: title.trim(), completed }, { where: { id } });
 };
 
 const updateMany = async (ids, completed) => {
-  await db.query(
-    `
-      UPDATE todos
-      SET completed = $1
-      WHERE id IN (${ids.map(id => `'${id}'`).join(',')});
-    `,
-    [completed],
-  );
+  await Todo.update({ completed }, { where: { id: ids } });
 };
 
 const remove = async id => {
-  await db.query(
-    `
-      DELETE FROM todos WHERE id = $1;
-    `,
-    [id],
-  );
+  await Todo.destroy({ where: { id } });
 };
 
 const removeMany = async ids => {
@@ -71,13 +70,7 @@ const removeMany = async ids => {
     throw new Error('Invalid ID format');
   }
 
-  await db.query(
-    `
-      DELETE FROM todos
-      WHERE id = ANY($1);
-    `,
-    [ids],
-  );
+  await Todo.destroy({ where: { id: ids } });
 };
 
 function isUUID(str) {

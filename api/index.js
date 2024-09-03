@@ -22,7 +22,7 @@ const server = app.listen(port, () => {
 
 function cleanUp() {
   server.close(async () => {
-    await db.end();
+    // await db.end();
 
     process.exit(0);
   });

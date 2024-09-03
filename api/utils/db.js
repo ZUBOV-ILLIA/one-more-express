@@ -2,6 +2,7 @@ const { sql } = require('@vercel/postgres');
 const pg = require('pg');
 const { Client, Pool } = pg;
 const dotenv = require('dotenv').config();
+const { Sequelize } = require('sequelize');
 
 const client = new Pool({
   user: dotenv.parsed.USER,
@@ -11,11 +12,22 @@ const client = new Pool({
   database: dotenv.parsed.DATABASE,
 });
 
+const sequelize = new Sequelize(
+  dotenv.parsed.DATABASE,
+  dotenv.parsed.USER,
+  dotenv.parsed.PASSWORD,
+  {
+    host: dotenv.parsed.HOST,
+    port: dotenv.parsed.PORT,
+    dialect: 'postgres',
+  },
+);
+
 let db;
 
 // local DB or vercel DB
 if (process.env.NODE_ENV === 'loc') {
-  db = client;
+  db = sequelize;
 
   connectDB();
 } else {
@@ -44,7 +56,7 @@ async function createTableTodos() {
       `,
     );
   } catch (error) {
-    console.error('Error creating table');
+    console.error('Error creating table =======', error);
   }
 }
 

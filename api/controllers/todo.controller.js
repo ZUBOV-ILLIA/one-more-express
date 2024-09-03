@@ -6,7 +6,7 @@ const get = async (req, res) => {
 
     res.json(todos);
   } catch (error) {
-    console.log('============== error ==============');
+    console.log('============== error ==============', error);
     res.sendStatus(500);
   }
 };
